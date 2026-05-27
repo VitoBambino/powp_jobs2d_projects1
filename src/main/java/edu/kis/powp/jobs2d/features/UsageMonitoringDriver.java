@@ -1,10 +1,11 @@
 package edu.kis.powp.jobs2d.features;
 
-import edu.kis.powp.jobs2d.Job2dDriver;
 import edu.kis.powp.jobs2d.drivers.visitor.DriverVisitor;
 import edu.kis.powp.jobs2d.drivers.visitor.VisitableDriver;
 import edu.kis.powp.observer.Publisher;
 import edu.kis.powp.observer.Subscriber;
+
+import java.util.function.BiConsumer;
 
 public class UsageMonitoringDriver implements VisitableDriver {
 
@@ -34,50 +35,53 @@ public class UsageMonitoringDriver implements VisitableDriver {
         return publisher;
     }
 
-    public void Inicialize(int x , int y)
-    {
+    @Override
+    public void setPosition(int x, int y) {
+        executeMove(x, y, driver::setPosition, false);
+    }
+
+    @Override
+    public void operateTo(int x, int y) {
+        executeMove(x, y, driver::operateTo, true);
+    }
+
+    private void executeMove(
+            int x,
+            int y,
+            BiConsumer<Integer, Integer> action,
+            boolean operation
+    ) {
+
+        if (!initialized) {
+            initialize(x, y);
+            action.accept(x, y);
+            return;
+        }
+
+        double d = distance(lastX, lastY, x, y);
+
+        totalDistance += d;
+
+        if (operation) {
+            operationDistance = d;
+        }
+
+        updateLastPosition(x, y);
+
+        action.accept(x, y);
+
+        publisher.notifyObservers();
+    }
+
+    private void initialize(int x, int y) {
         lastX = x;
         lastY = y;
         initialized = true;
     }
 
-    public void UpdateLast(int x , int y)
-    {
+    private void updateLastPosition(int x, int y) {
         lastX = x;
         lastY = y;
-    }
-
-    @Override
-    public void setPosition(int x, int y) {
-        if (!initialized) {
-            Inicialize(x ,y);
-            driver.setPosition(x, y);
-            return;
-        }
-
-        totalDistance += distance(lastX, lastY, x, y);
-        UpdateLast(x,y);
-
-        driver.setPosition(x, y);
-        publisher.notifyObservers();
-    }
-
-    @Override
-    public void operateTo(int x, int y) {
-
-        if (!initialized) {
-            Inicialize(x ,y);
-            driver.operateTo(x, y);
-            return;
-        }
-
-        double d = distance(lastX, lastY, x, y);
-        totalDistance += d;
-        operationDistance = d;
-        UpdateLast(x,y);
-
-        driver.operateTo(x, y);
-        publisher.notifyObservers();
     }
 
     public double getTotalDistance() {
@@ -94,6 +98,6 @@ public class UsageMonitoringDriver implements VisitableDriver {
 
     @Override
     public void accept(DriverVisitor visitor) {
-        (driver).accept(visitor);
+        driver.accept(visitor);
     }
 }
