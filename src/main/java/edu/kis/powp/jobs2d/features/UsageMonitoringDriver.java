@@ -34,19 +34,29 @@ public class UsageMonitoringDriver implements VisitableDriver {
         return publisher;
     }
 
+    public void Inicialize(int x , int y)
+    {
+        lastX = x;
+        lastY = y;
+        initialized = true;
+    }
+
+    public void UpdateLast(int x , int y)
+    {
+        lastX = x;
+        lastY = y;
+    }
+
     @Override
     public void setPosition(int x, int y) {
         if (!initialized) {
-            lastX = x;
-            lastY = y;
-            initialized = true;
+            Inicialize(x ,y);
             driver.setPosition(x, y);
             return;
         }
 
         totalDistance += distance(lastX, lastY, x, y);
-        lastX = x;
-        lastY = y;
+        UpdateLast(x,y);
 
         driver.setPosition(x, y);
         publisher.notifyObservers();
@@ -54,20 +64,17 @@ public class UsageMonitoringDriver implements VisitableDriver {
 
     @Override
     public void operateTo(int x, int y) {
-        operationDistance = 0;
+
         if (!initialized) {
-            lastX = x;
-            lastY = y;
-            initialized = true;
+            Inicialize(x ,y);
             driver.operateTo(x, y);
             return;
         }
 
         double d = distance(lastX, lastY, x, y);
         totalDistance += d;
-        operationDistance += d;
-        lastX = x;
-        lastY = y;
+        operationDistance = d;
+        UpdateLast(x,y);
 
         driver.operateTo(x, y);
         publisher.notifyObservers();
