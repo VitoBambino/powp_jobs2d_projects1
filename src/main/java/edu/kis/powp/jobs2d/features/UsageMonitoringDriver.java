@@ -8,7 +8,7 @@ import edu.kis.powp.observer.Subscriber;
 
 public class UsageMonitoringDriver implements VisitableDriver {
 
-    private final Job2dDriver driver;
+    private final VisitableDriver driver;
     private final Publisher publisher = new Publisher();
 
     private int lastX;
@@ -87,6 +87,6 @@ public class UsageMonitoringDriver implements VisitableDriver {
 
     @Override
     public void accept(DriverVisitor visitor) {
-        ((VisitableDriver) driver).accept(visitor);
+        (driver).accept(visitor);
     }
 }
