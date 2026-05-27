@@ -18,7 +18,7 @@ public class UsageMonitoringDriver implements VisitableDriver {
     private double totalDistance = 0;
     private double operationDistance = 0;
 
-    public UsageMonitoringDriver(Job2dDriver driver) {
+    public UsageMonitoringDriver(VisitableDriver driver) {
         this.driver = driver;
     }
 
