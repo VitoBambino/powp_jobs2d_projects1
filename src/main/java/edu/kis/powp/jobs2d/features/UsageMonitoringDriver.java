@@ -53,7 +53,7 @@ public class UsageMonitoringDriver implements VisitableDriver {
     ) {
 
         if (!initialized) {
-            initialize(x, y);
+            updatePosition(x, y, true);
             action.accept(x, y);
             return;
         }
@@ -66,22 +66,20 @@ public class UsageMonitoringDriver implements VisitableDriver {
             operationDistance = d;
         }
 
-        updateLastPosition(x, y);
+        updatePosition(x, y, false);
 
         action.accept(x, y);
 
         publisher.notifyObservers();
     }
 
-    private void initialize(int x, int y) {
+    private void updatePosition(int x, int y, boolean initialize) {
         lastX = x;
         lastY = y;
-        initialized = true;
-    }
 
-    private void updateLastPosition(int x, int y) {
-        lastX = x;
-        lastY = y;
+        if (initialize) {
+            initialized = true;
+        }
     }
 
     public double getTotalDistance() {
